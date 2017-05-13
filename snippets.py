@@ -6,7 +6,7 @@ logging.basicConfig(filename="snippets.log", level=logging.DEBUG)
 def put(name, snippet):
     """
     Stores a snippet with an associated name.
-    Returns the name and the snippet
+    Returns the name and the snippet.
     """
     logging.error("FIXME: Unimplemented - put{!r}, {!r}".format(name, snippet))
     #Think about error handling here in case get fails - raise exception with message
@@ -20,4 +20,25 @@ def get(name):
     """
     logging.error("FIXME - Unimplemented - get{!r}".format(name))
     #Think about error handling here in case it fails - raise exception with message
+    return ""
+
+def post(name, snippet):
+    """
+    Retrieve snippet with the given name.
+    If there is no such snippet, return '404 Snippet Not Found'.
+    Modify the snippet by replacing the current snippet with the one provided.
+    Returns the name and the snippet.
+    """
+    logging.error("FIXME - Unimplemented - post{!r}, {!r}".format(name, snippet))
+    #Think about error handling here in case get fails - raise exception with message
+    return ""
+
+def delete(name):
+    """
+    Delete snippet with the given name.
+    If there is no such snippet, return '404 Snippet Not Found'.
+    Returns the name of the deleted snippet.
+    """
+    logging.error("FIXME - Unimplemented - delete{!r}".format(name))
+    #Think about error handling here in case get fails - raise exception with message
     return ""
