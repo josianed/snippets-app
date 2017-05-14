@@ -1,4 +1,5 @@
 import logging
+import argparse
 
 #Set the log output file, and the log level
 logging.basicConfig(filename="snippets.log", level=logging.DEBUG)
@@ -42,3 +43,12 @@ def delete(name):
     logging.error("FIXME - Unimplemented - delete{!r}".format(name))
     #Think about error handling here in case get fails - raise exception with message
     return ""
+
+def main():
+    """Main function"""
+    logging.info("Constructing parser")
+    parser = argparse.ArgumentParser(description="Store and retrieve snippets of text")
+    arguments = parser.parse_args()
+
+if __name__ == "__main__":
+    main()
