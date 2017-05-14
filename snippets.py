@@ -11,7 +11,7 @@ def put(name, snippet):
     """
     logging.error("FIXME: Unimplemented - put{!r}, {!r}".format(name, snippet))
     #Think about error handling here in case get fails - raise exception with message
-    return ""
+    return name, snippet
 
 def get(name):
     """
@@ -32,7 +32,7 @@ def post(name, snippet):
     """
     logging.error("FIXME - Unimplemented - post{!r}, {!r}".format(name, snippet))
     #Think about error handling here in case get fails - raise exception with message
-    return ""
+    return name, snippet
 
 def delete(name):
     """
@@ -54,10 +54,26 @@ def main():
     #Subparser for the put command
     logging.debug("Constructing put subparser.")
     put_parser = subparsers.add_parser("put", help="Store a snippet")
-    put_parser.add_argument("name", help="Name of snippet")
+    put_parser.add_argument("name", help="Name of the snippet")
     put_parser.add_argument("snippet", help="Snippet text")
 
+    #Subparser for the get command
+    logging.debug("Constructing the get subparser.")
+    get_parser = subparsers.add_parser("get", help="Retrieve a stored snippet")
+    get_parser.add_argument("name", help="Name of the snippet")
+
     arguments = parser.parse_args()
+
+    #Convert parsed arguments from Namespace to dictionary
+    arguments = vars(arguments)
+    command = arguments.pop("command")
+
+    if command == "put":
+        name, snippet = put(**arguments)
+        print("Stored {!r} as {!r}".format(snippet, name))
+    elif command == "get":
+        snippet = get(**arguments)
+        print("Retrieved snippet: {!r}".format(snippet))
 
 if __name__ == "__main__":
     main()
