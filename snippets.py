@@ -29,9 +29,16 @@ def get(name):
     If there is no such snippet, return '404 Snippet Not Found'.
     Returns the snippet.
     """
-    logging.error("FIXME - Unimplemented - get{!r}".format(name))
+    logging.info("Getting snippet {!r}".format(name))
+    cursor = connection.cursor()
+    command = "select message from snippets where keyword=%s"
+    cursor.execute(command, (name,))
+    message = cursor.fetchone()
+    connection.commit()
+    logging.debug("Snippet retrieved successfully.")
     #Think about error handling here in case it fails - raise exception with message
-    return ""
+    #TypeError
+    return message
 
 def post(name, snippet):
     """
