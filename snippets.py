@@ -33,12 +33,14 @@ def get(name):
     cursor = connection.cursor()
     command = "select message from snippets where keyword=%s"
     cursor.execute(command, (name,))
-    message = cursor.fetchone()
+    row = cursor.fetchone()
     connection.commit()
+    if not row:
+        return "404 Snippet Not Found"
     logging.debug("Snippet retrieved successfully.")
     #Think about error handling here in case it fails - raise exception with message
     #TypeError
-    return message
+    return row[0]
 
 def post(name, snippet):
     """
