@@ -15,12 +15,16 @@ def put(name, snippet):
     """
     logging.info("Storing snippet {!r}: {!r}".format(name, snippet))
     cursor = connection.cursor()
-    command = "insert into snippets values (%s, %s)"
-    cursor.execute(command, (name, snippet))
-    connection.commit()
-    logging.debug("Snippet stored successfully.")
-    #Think about error handling here in case get fails - raise exception with message
-    #ProgrammingError
+    try:
+        command = "insert into snippets values (%s, %s)"
+        cursor.execute(command, (name, snippet))
+        connection.commit()
+        logging.debug("Snippet stored successfully.")
+    except psycopg2.IntegrityError as e:
+        connection.rollback()
+        command = "update snippets set message=%s where keyword=%s"
+        cursor.execute(command, (snippet, name))
+        connection.commit()
     return name, snippet
 
 def get(name):
@@ -38,8 +42,6 @@ def get(name):
     if not row:
         return "404 Snippet Not Found"
     logging.debug("Snippet retrieved successfully.")
-    #Think about error handling here in case it fails - raise exception with message
-    #TypeError
     return row[0]
 
 def post(name, snippet):
