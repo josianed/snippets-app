@@ -47,8 +47,15 @@ def post(name, snippet):
     Modify the snippet by replacing the current snippet with the one provided.
     Returns the name and the snippet.
     """
-    logging.error("FIXME - Unimplemented - post{!r}, {!r}".format(name, snippet))
-    #Think about error handling here in case get fails - raise exception with message
+    logging.info("Updating snippet {!r}: {!r}".format(name, snippet))
+    cursor = connection.cursor()
+    with connection, connection.cursor() as cursor:
+        cursor.execute("select %s from snippets where keyword=%s", (snippet, name))
+        if cursor.fetchone() is not None:
+            cursor.execute("update snippets set message=%s where keyword=%s", (snippet, name))
+        else:
+            return name, "404 Snippet Not Found"
+    logging.debug("Snippet updated successfully")
     return name, snippet
 
 def delete(name):
@@ -79,7 +86,14 @@ def main():
     get_parser = subparsers.add_parser("get", help="Retrieve a stored snippet")
     get_parser.add_argument("name", help="Name of the snippet")
 
+    #Subparser for the post command
+    logging.debug("Constructing the post subparser.")
+    post_parser = subparsers.add_parser("post", help="Modify a stored snippet")
+    post_parser.add_argument("name", help="Name of snippet to update")
+    post_parser.add_argument("snippet", help="Updated snippet text")
+
     arguments = parser.parse_args()
+    print("Arguments {}".format(arguments))
 
     #Convert parsed arguments from Namespace to dictionary
     arguments = vars(arguments)
@@ -91,6 +105,9 @@ def main():
     elif command == "get":
         snippet = get(**arguments)
         print("Retrieved snippet: {!r}".format(snippet))
+    elif command == "post":
+        name, snippet = post(**arguments)
+        print("Updated {!r} to {!r}".format(name, snippet))
 
 if __name__ == "__main__":
     main()
