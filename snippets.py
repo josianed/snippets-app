@@ -14,7 +14,6 @@ def put(name, snippet):
     Returns the name and the snippet.
     """
     logging.info("Storing snippet {!r}: {!r}".format(name, snippet))
-    cursor = connection.cursor()
     with connection, connection.cursor() as cursor:
         try:
             cursor.execute("insert into snippets values (%s, %s)", (name, snippet))
@@ -48,9 +47,8 @@ def post(name, snippet):
     Returns the name and the snippet.
     """
     logging.info("Updating snippet {!r}: {!r}".format(name, snippet))
-    cursor = connection.cursor()
     with connection, connection.cursor() as cursor:
-        cursor.execute("select %s from snippets where keyword=%s", (snippet, name))
+        cursor.execute("select message from snippets where keyword=%s", (name,))
         if cursor.fetchone() is not None:
             cursor.execute("update snippets set message=%s where keyword=%s", (snippet, name))
         else:
@@ -64,9 +62,15 @@ def delete(name):
     If there is no such snippet, return '404 Snippet Not Found'.
     Returns the name of the deleted snippet.
     """
-    logging.error("FIXME - Unimplemented - delete{!r}".format(name))
-    #Think about error handling here in case get fails - raise exception with message
-    return ""
+    logging.info("Deleting snippet {!r}".format(name,))
+    with connection, connection.cursor() as cursor:
+        cursor.execute("select message from snippets where keyword=%s", (name,))
+        if cursor.fetchone() is not None:
+            cursor.execute("delete from snippets where keyword=%s", (name,))
+        else:
+            return "404 Snippet Not Found"
+    logging.debug("Snippet deleted successfully")
+    return name
 
 def main():
     """Main function"""
@@ -92,8 +96,12 @@ def main():
     post_parser.add_argument("name", help="Name of snippet to update")
     post_parser.add_argument("snippet", help="Updated snippet text")
 
+    #Subparser for delete command
+    logging.debug("Constructing the delete subparser.")
+    delete_parser = subparsers.add_parser("delete", help="Delete a stored snippet")
+    delete_parser.add_argument("name", help="Name of snippet to delete")
+
     arguments = parser.parse_args()
-    print("Arguments {}".format(arguments))
 
     #Convert parsed arguments from Namespace to dictionary
     arguments = vars(arguments)
@@ -107,7 +115,10 @@ def main():
         print("Retrieved snippet: {!r}".format(snippet))
     elif command == "post":
         name, snippet = post(**arguments)
-        print("Updated {!r} to {!r}".format(name, snippet))
+        print("Updated {!r} to: {!r}".format(name, snippet))
+    elif command == "delete":
+        name = delete(**arguments)
+        print("Deleted snippet: {!r}".format(name))
 
 if __name__ == "__main__":
     main()
