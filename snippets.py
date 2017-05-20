@@ -72,6 +72,21 @@ def delete(name):
     logging.debug("Snippet deleted successfully")
     return name
 
+def catalog():
+    """
+    Retrieves all keywords available.
+    If there are no keywords, returns '404 No Snippets Available'
+    """
+    logging.info("Retrieving all snippets.")
+    with connection, connection.cursor() as cursor:
+        cursor.execute("select keyword from snippets order by keyword")
+        keywords = cursor.fetchall()
+        if keywords is None:
+            return "404 No Snippets Available"
+    logging.debug("Retrieved all snippet keywords successfully")
+    return keywords
+
+
 def main():
     """Main function"""
     logging.info("Constructing parser")
@@ -86,20 +101,24 @@ def main():
     put_parser.add_argument("snippet", help="Snippet text")
 
     #Subparser for the get command
-    logging.debug("Constructing the get subparser.")
+    logging.debug("Constructing get subparser.")
     get_parser = subparsers.add_parser("get", help="Retrieve a stored snippet")
     get_parser.add_argument("name", help="Name of the snippet")
 
     #Subparser for the post command
-    logging.debug("Constructing the post subparser.")
+    logging.debug("Constructing post subparser.")
     post_parser = subparsers.add_parser("post", help="Modify a stored snippet")
     post_parser.add_argument("name", help="Name of snippet to update")
     post_parser.add_argument("snippet", help="Updated snippet text")
 
     #Subparser for delete command
-    logging.debug("Constructing the delete subparser.")
+    logging.debug("Constructing delete subparser.")
     delete_parser = subparsers.add_parser("delete", help="Delete a stored snippet")
     delete_parser.add_argument("name", help="Name of snippet to delete")
+
+    #Subparser for catalog command
+    logging.debug("Constructing catalog subparser.")
+    catalog_parser = subparsers.add_parser("catalog", help="Retrieve all available keywords")
 
     arguments = parser.parse_args()
 
@@ -119,6 +138,11 @@ def main():
     elif command == "delete":
         name = delete(**arguments)
         print("Deleted snippet: {!r}".format(name))
+    elif command == "catalog":
+        keywords = catalog()
+        print("Keywords: ")
+        for keyword in keywords:
+            print(keyword[0])
 
 if __name__ == "__main__":
     main()
