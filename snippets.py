@@ -86,6 +86,19 @@ def catalog():
     logging.debug("Retrieved all snippet keywords successfully")
     return keywords
 
+def search(string):
+    """
+    Retrieves messages containing search string.
+    If there are no keywords, returns '404 No Matching Snippets Found'
+    """
+    logging.info("Searching for snippet containing search string")
+    with connection, connection.cursor() as cursor:
+        cursor.execute("select * from snippets where message like '%{0}%'".format(string))
+        rows = cursor.fetchall()
+    if not rows:
+        return '404 No Matching Snippets Found Containing', string
+    logging.debug("Retrieved matching snippets successfully")
+    return rows
 
 def main():
     """Main function"""
@@ -120,6 +133,11 @@ def main():
     logging.debug("Constructing catalog subparser.")
     catalog_parser = subparsers.add_parser("catalog", help="Retrieve all available keywords")
 
+    #Subparser for search command
+    logging.debug("Constructing search command.")
+    search_parser = subparsers.add_parser("search", help="Retrieve all keywords matching provided search string")
+    search_parser.add_argument("string", help="String to find in existing messages")
+
     arguments = parser.parse_args()
 
     #Convert parsed arguments from Namespace to dictionary
@@ -146,6 +164,14 @@ def main():
             print("Keywords: ")
             for keyword in keywords:
                 print(keyword[0])
+    elif command == "search":
+        string = search(**arguments)
+        if "404 No Matching Snippets Found Containing" in string:
+            print("{!r}: {!r}".format(string[0], string[1]))
+        else:
+            print("Matching snippets: ")
+            for kw, msg in string:
+                print("{!r}: {!r}".format(kw, msg))
 
 if __name__ == "__main__":
     main()
