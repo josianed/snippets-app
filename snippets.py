@@ -81,8 +81,8 @@ def catalog():
     with connection, connection.cursor() as cursor:
         cursor.execute("select keyword from snippets order by keyword")
         keywords = cursor.fetchall()
-        if keywords is None:
-            return "404 No Snippets Available"
+    if not keywords:
+        return "404 No Snippets Found"
     logging.debug("Retrieved all snippet keywords successfully")
     return keywords
 
@@ -140,9 +140,12 @@ def main():
         print("Deleted snippet: {!r}".format(name))
     elif command == "catalog":
         keywords = catalog()
-        print("Keywords: ")
-        for keyword in keywords:
-            print(keyword[0])
+        if keywords == "404 No Snippets Found":
+            print("{}".format(keywords))
+        else:
+            print("Keywords: ")
+            for keyword in keywords:
+                print(keyword[0])
 
 if __name__ == "__main__":
     main()
